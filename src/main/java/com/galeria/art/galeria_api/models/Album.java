@@ -18,11 +18,6 @@ public class Album {
     // Título do Álbum.
     @Column(nullable = false)
     private String titulo;
-    
-    // Dono do Álbum.
-    @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;
 
     // Capa do Álbum.
     @OneToOne
@@ -32,5 +27,18 @@ public class Album {
     // Fotos do Álbum.
     @OneToMany(mappedBy = "album")
     private Set<Foto> fotos;
-    
+
+    // Dono do Álbum.
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
+    // Tags do Álbum.
+    @ManyToMany
+    @JoinTable(
+      name = "album_tag", 
+      joinColumns = @JoinColumn(name = "album_id"), 
+      inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    private Set<Tag> tags;
+
 }
