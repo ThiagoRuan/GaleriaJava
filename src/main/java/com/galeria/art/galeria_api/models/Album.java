@@ -22,7 +22,7 @@ public class Album {
     // Capa do Álbum.
     @OneToOne
     @JoinColumn(name = "cover_id", unique = true)
-    private Photo coverFoto;
+    private Foto coverFoto;
     
     // Fotos do Álbum.
     @OneToMany(mappedBy = "album")
