@@ -17,15 +17,15 @@ public class User {
     private Long id;
 
     // Nome do usuário.
-    @Column(name = "nome", nullable = false)
+    @Column(nullable = false)
     private String nome;
 
     // Senha do usuário.
-    @Column(name = "senha", nullable = false)
-    private String password;
+    @Column(nullable = false)
+    private String senha;
 
     // Email do usuário utilizado para cadastrar e autenticar.
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
     // Fotos do usuário.
