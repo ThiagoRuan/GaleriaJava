@@ -1,4 +1,4 @@
-package com.galeria.art.galeria_api.models
+package com.galeria.art.galeria_api.models;
 
 import jakarta.persistence.*;
 import java.util.List;
