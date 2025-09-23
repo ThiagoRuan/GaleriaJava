@@ -1,8 +1,9 @@
-package com.galeria.art.galeria_api.repository
+package com.galeria.art.galeria_api.repository;
 
 import com.galeria.art.galeria_api.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
