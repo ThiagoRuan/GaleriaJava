@@ -40,6 +40,7 @@ public class Foto {
     // Dimensões da foto.
     @Column
     private Integer largura;
+
     @Column
     private Integer altura;
     
