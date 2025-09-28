@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres
+    container_name: galeria-postgres
+    environment:
+      POSTGRES_USER: thy
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: galeria_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - galeria-data:/var/lib/postgresql/data
+
+volumes:
+  galeria-data:
