@@ -1,4 +1,4 @@
-package com.galeria.art.galeria_api.repository;
+package com.galeria.art.galeria_api.repositories;
 
 import com.galeria.art.galeria_api.models.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;

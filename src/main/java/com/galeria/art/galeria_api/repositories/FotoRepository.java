@@ -1,4 +1,4 @@
-package com.galeria.art.galeria_api.repository;
+package com.galeria.art.galeria_api.repositories;
 
 import com.galeria.art.galeria_api.models.Foto;
 import com.galeria.art.galeria_api.models.Album;
