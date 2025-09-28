@@ -3,6 +3,7 @@ package com.galeria.art.galeria_api.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.Set;
 
 @Getter
 @Setter
