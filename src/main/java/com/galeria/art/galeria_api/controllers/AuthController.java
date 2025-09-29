@@ -1,7 +1,7 @@
 package com.galeria.art.galeria_api.controllers;
 
 import com.galeria.art.galeria_api.dto.LoginDTO;
-import com.galeria.art.galeria_api.dto.LoginResponseDto;
+import com.galeria.art.galeria_api.dto.LoginResponseDTO;
 import com.galeria.art.galeria_api.dto.UserRegisterDTO;
 import com.galeria.art.galeria_api.services.UserService;
 import jakarta.validation.Valid;
@@ -28,9 +28,11 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginDTO loginDTO) {
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
         String token = userService.autenticarUsuario(loginDTO);
-        LoginResponseDto response = new LoginResponseDto(token);
+        LoginResponseDTO response = new LoginResponseDTO(token);
 
         return ResponseEntity.ok(response);
     }
