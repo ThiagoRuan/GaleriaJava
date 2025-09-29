@@ -5,6 +5,7 @@ import com.galeria.art.galeria_api.dto.UserRegisterDTO;
 import com.galeria.art.galeria_api.exceptions.EmailAlreadyExistsException;
 import com.galeria.art.galeria_api.models.User;
 import com.galeria.art.galeria_api.repositories.UserRepository;
+import com.galeria.art.galeria_api.securities.JwtService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,10 +16,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public void registrarUsuario(UserRegisterDTO userDTO) {
@@ -37,14 +40,14 @@ public class UserService {
         userRepository.save(novoUsuario);
     }
 
-    public User autenticarUsuario(LoginDTO loginDto) {
+    public String autenticarUsuario(LoginDTO loginDto) {
         var usuario = userRepository.findByEmail(loginDto.getEmail())
-                .orElseThrow(() -> new BadCredentialsException("Email ou senha inválidos."));
+                .orElseThrow(() -> new BadCredentialsException("Email e/ou Senha inválido(s)."));
 
         if (!passwordEncoder.matches(loginDto.getSenha(), usuario.getSenha())) {
-            throw new BadCredentialsException("Email ou senha inválidos.");
+            throw new BadCredentialsException("Email e/ou senha inválido(s).");
         }
 
-        return usuario;
+        return jwtService.generateToken(usuario);
     }
 }
