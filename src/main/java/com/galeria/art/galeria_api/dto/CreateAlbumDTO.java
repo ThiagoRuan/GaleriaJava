@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class CreateAlbumDTO {
 
-    @NotBlank(message = "O Álbum não pode ficar com o título em branco.")
+    @NotBlank(message = "O título do álbum não pode ficar em branco.")
     private String titulo;
 
 }
