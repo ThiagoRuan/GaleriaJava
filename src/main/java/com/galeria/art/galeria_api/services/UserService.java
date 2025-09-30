@@ -1,35 +1,38 @@
 package com.galeria.art.galeria_api.services;
 
 import com.galeria.art.galeria_api.dto.LoginDTO;
+import com.galeria.art.galeria_api.dto.UserDTO;
 import com.galeria.art.galeria_api.dto.UserRegisterDTO;
 import com.galeria.art.galeria_api.exceptions.EmailAlreadyExistsException;
 import com.galeria.art.galeria_api.models.User;
 import com.galeria.art.galeria_api.repositories.UserRepository;
 import com.galeria.art.galeria_api.securities.JwtService;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final ModelMapper modelMapper;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-    }
+//    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+//        this.userRepository = userRepository;
+//        this.passwordEncoder = passwordEncoder;
+//        this.jwtService = jwtService;
+//    }
 
-    public void registrarUsuario(UserRegisterDTO userDTO) {
-        Optional<User> userExistente = userRepository.findByEmail(userDTO.getEmail());
+    public UserDTO registrarUsuario(UserRegisterDTO userDTO) {
 
-        if (userExistente.isPresent()) {
+        userRepository.findByEmail(userDTO.getEmail()).ifPresent(user -> {
             throw new EmailAlreadyExistsException("O email '" + userDTO.getEmail() + "' já está em uso.");
-        }
+        });
 
         User novoUsuario = new User();
 
@@ -37,7 +40,8 @@ public class UserService {
         novoUsuario.setEmail(userDTO.getEmail());
         novoUsuario.setSenha(passwordEncoder.encode(userDTO.getSenha()));
 
-        userRepository.save(novoUsuario);
+        User userCriado = userRepository.save(novoUsuario);
+        return modelMapper.map(userCriado, UserDTO.class);
     }
 
     public String autenticarUsuario(LoginDTO loginDto) {

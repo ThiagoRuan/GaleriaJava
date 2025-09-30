@@ -5,6 +5,7 @@ import com.galeria.art.galeria_api.dto.LoginResponseDTO;
 import com.galeria.art.galeria_api.dto.UserRegisterDTO;
 import com.galeria.art.galeria_api.services.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,13 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final UserService userService;
-
-    public AuthController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping("/register")
     public ResponseEntity<Void> registrarUsuario(@Valid @RequestBody UserRegisterDTO userDTO) {
