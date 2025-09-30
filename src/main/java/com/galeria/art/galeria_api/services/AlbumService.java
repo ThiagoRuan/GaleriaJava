@@ -1,7 +1,9 @@
 package com.galeria.art.galeria_api.services;
 
 import com.galeria.art.galeria_api.dto.AlbumDTO;
+import com.galeria.art.galeria_api.dto.CreateAlbumDTO;
 import com.galeria.art.galeria_api.dto.FotoDTO;
+import com.galeria.art.galeria_api.exceptions.AlbumAlreadyExistsException;
 import com.galeria.art.galeria_api.exceptions.ItemNotFoundException;
 import com.galeria.art.galeria_api.models.Album;
 import com.galeria.art.galeria_api.models.Foto;
@@ -28,6 +30,19 @@ public class AlbumService {
         return albuns.stream()
                 .map(album -> modelMapper.map(album, AlbumDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    public AlbumDTO criarAlbum(CreateAlbumDTO createAlbumDTO, User owner) {
+        albumRepository.findByTituloAndOwner(createAlbumDTO.getTitulo(), owner).ifPresent(album -> {
+            throw new AlbumAlreadyExistsException("Já existe um álbum '"+createAlbumDTO.getTitulo()+"' na sua galeria.");
+        });
+
+        Album album = new Album();
+        album.setTitulo(createAlbumDTO.getTitulo());
+        album.setOwner(owner);
+
+        Album albumSalvo = albumRepository.save(album);
+        return modelMapper.map(albumSalvo, AlbumDTO.class);
     }
 
     public FotoDTO cover(Long albumId) {
