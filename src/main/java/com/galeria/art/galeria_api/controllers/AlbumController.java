@@ -21,7 +21,10 @@ public class AlbumController {
     private final AlbumService albumService;
 
     @PostMapping
-    public ResponseEntity<AlbumDTO> criarAlbum(@Valid @RequestBody CreateAlbumDTO albumDTO, @AuthenticationPrincipal User usuarioLogado) {
+    public ResponseEntity<AlbumDTO> criarAlbum(
+            @Valid @RequestBody CreateAlbumDTO albumDTO,
+            @AuthenticationPrincipal User usuarioLogado
+    ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(albumService.criarAlbum(albumDTO, usuarioLogado));
     }
 
