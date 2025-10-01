@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AlbumUpdateDTO {
+public class UpdateAlbumDTO {
     private String titulo;
     private Long coverId;
 }

@@ -1,6 +1,7 @@
 package com.galeria.art.galeria_api.services;
 
 import com.galeria.art.galeria_api.dto.AlbumDTO;
+import com.galeria.art.galeria_api.dto.UpdateAlbumDTO;
 import com.galeria.art.galeria_api.dto.CreateAlbumDTO;
 import com.galeria.art.galeria_api.dto.FotoDTO;
 import com.galeria.art.galeria_api.exceptions.AlbumAlreadyExistsException;
@@ -10,6 +11,7 @@ import com.galeria.art.galeria_api.models.Album;
 import com.galeria.art.galeria_api.models.Foto;
 import com.galeria.art.galeria_api.models.User;
 import com.galeria.art.galeria_api.repositories.AlbumRepository;
+import com.galeria.art.galeria_api.repositories.FotoRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 public class AlbumService {
 
     private final AlbumRepository albumRepository;
+    private final FotoRepository fotoRepository;
     private final ModelMapper modelMapper;
 
     public List<AlbumDTO> findAlbumsByOwner(User owner) {
@@ -48,12 +51,33 @@ public class AlbumService {
 
     public void deletarAlbum(User owner, Long albumId) {
         Album album = albumRepository.findById(albumId)
-                .orElseThrow(() -> new ItemNotFoundException("Álbum com id '"+albumId+"' não encontrado"));
+                .orElseThrow(() -> new ItemNotFoundException("Álbum com id '"+albumId+"' não encontrado."));
         if (!album.getOwner().getId().equals(owner.getId())) {
-            throw new UnauthorizedUserException("Você não possui permissão para deletar esse álbum."+owner+album.getOwner());
+            throw new UnauthorizedUserException("Você não possui permissão para deletar esse álbum.");
         }
 
         albumRepository.deleteById(albumId);
+    }
+
+    public AlbumDTO atualizarAlbum(User owner, Long albumId, UpdateAlbumDTO albumDTO) {
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new ItemNotFoundException("Álbum com id '"+albumId+"' não encontrado."));
+
+        if (!album.getOwner().getId().equals(owner.getId())) {
+            throw new UnauthorizedUserException("Você não possui permissão para atualizar esse álbum.");
+        }
+        if (!albumDTO.getTitulo().isBlank()) {
+            album.setTitulo(albumDTO.getTitulo());
+        }
+        if (albumDTO.getCoverId() != null) {
+            Foto cover = fotoRepository.findById(albumDTO.getCoverId())
+                    .orElseThrow(() -> new ItemNotFoundException("Foto com id '"+albumDTO.getCoverId()+"' não encontrada."));
+            if (cover.getOwner().getId().equals(owner.getId())) {
+                album.setCoverFoto(cover);
+            }
+        }
+
+        return modelMapper.map(albumRepository.save(album), AlbumDTO.class);
     }
 
     public FotoDTO cover(Long albumId) {
