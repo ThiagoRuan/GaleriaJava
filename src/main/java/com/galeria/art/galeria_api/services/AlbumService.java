@@ -5,6 +5,7 @@ import com.galeria.art.galeria_api.dto.CreateAlbumDTO;
 import com.galeria.art.galeria_api.dto.FotoDTO;
 import com.galeria.art.galeria_api.exceptions.AlbumAlreadyExistsException;
 import com.galeria.art.galeria_api.exceptions.ItemNotFoundException;
+import com.galeria.art.galeria_api.exceptions.UnauthorizedUserException;
 import com.galeria.art.galeria_api.models.Album;
 import com.galeria.art.galeria_api.models.Foto;
 import com.galeria.art.galeria_api.models.User;
@@ -43,6 +44,16 @@ public class AlbumService {
 
         Album albumSalvo = albumRepository.save(album);
         return modelMapper.map(albumSalvo, AlbumDTO.class);
+    }
+
+    public void deletarAlbum(User owner, Long albumId) {
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new ItemNotFoundException("Álbum com id '"+albumId+"' não encontrado"));
+        if (!album.getOwner().getId().equals(owner.getId())) {
+            throw new UnauthorizedUserException("Você não possui permissão para deletar esse álbum."+owner+album.getOwner());
+        }
+
+        albumRepository.deleteById(albumId);
     }
 
     public FotoDTO cover(Long albumId) {

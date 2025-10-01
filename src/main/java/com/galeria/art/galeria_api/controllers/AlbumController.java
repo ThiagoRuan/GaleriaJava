@@ -32,4 +32,13 @@ public class AlbumController {
     public ResponseEntity<List<AlbumDTO>> getMeusAlbuns(@AuthenticationPrincipal User usuarioLogado) {
         return ResponseEntity.ok(albumService.findAlbumsByOwner(usuarioLogado));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarAlbum(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User usuarioLogado
+    ) {
+        albumService.deletarAlbum(usuarioLogado, id);
+        return ResponseEntity.noContent().build();
+    }
 }
