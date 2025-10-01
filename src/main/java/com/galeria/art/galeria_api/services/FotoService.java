@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,14 @@ public class FotoService {
     private final ModelMapper modelMapper;
     private final FotoRepository fotoRepository;
     private final FileStorageService fileStorageService;
+
+    public List<FotoDTO> listarFotos(User owner) {
+        List<Foto> fotos = fotoRepository.findByOwner(owner);
+
+        return fotos.stream()
+                .map(foto -> modelMapper.map(foto, FotoDTO.class))
+                .collect(Collectors.toList());
+    }
 
     public FotoDTO salvarFoto(FotoUploadDTO fotoDTO, MultipartFile file, User owner) {
         String filePath = fileStorageService.salvarFoto(file);
@@ -48,5 +58,9 @@ public class FotoService {
 
         Foto fotoSalva = fotoRepository.save(foto);
         return modelMapper.map(fotoSalva, FotoDTO.class);
+    }
+
+    public void deletarFoto(User owner) {
+
     }
 }

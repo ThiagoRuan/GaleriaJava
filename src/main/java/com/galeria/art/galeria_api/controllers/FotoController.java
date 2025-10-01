@@ -12,6 +12,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/fotos")
 @RequiredArgsConstructor
@@ -26,5 +28,10 @@ public class FotoController {
             @AuthenticationPrincipal User usuarioLogado
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(fotoService.salvarFoto(fotoDTO, file, usuarioLogado));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<FotoDTO>> listarFotos(@AuthenticationPrincipal User usuarioLogado) {
+        return ResponseEntity.ok(fotoService.listarFotos(usuarioLogado));
     }
 }
