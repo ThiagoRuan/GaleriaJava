@@ -3,20 +3,26 @@ package com.galeria.art.galeria_api.services;
 import com.galeria.art.galeria_api.dto.FotoDTO;
 import com.galeria.art.galeria_api.dto.FotoUploadDTO;
 import com.galeria.art.galeria_api.exceptions.FotoUploadException;
+import com.galeria.art.galeria_api.exceptions.ItemNotFoundException;
+import com.galeria.art.galeria_api.exceptions.UnauthorizedUserException;
 import com.galeria.art.galeria_api.models.Foto;
 import com.galeria.art.galeria_api.models.User;
+import com.galeria.art.galeria_api.repositories.AlbumRepository;
 import com.galeria.art.galeria_api.repositories.FotoRepository;
+import com.galeria.art.galeria_api.specifications.FotoSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -25,13 +31,20 @@ public class FotoService {
     private final ModelMapper modelMapper;
     private final FotoRepository fotoRepository;
     private final FileStorageService fileStorageService;
+    private final AlbumRepository albumRepository;
 
-    public List<FotoDTO> listarFotos(User owner) {
-        List<Foto> fotos = fotoRepository.findByOwner(owner);
+    public Page<Foto> listarFotos(User owner, Long albumId, String autor, String extensao, LocalDateTime inicioData, LocalDateTime fimData, Pageable pageable) {
+        Specification<Foto> spec = FotoSpecifications.comFiltros(
+                owner,
+                albumRepository.findById(albumId)
+                        .orElseThrow(() -> new ItemNotFoundException("Álbum com id '"+albumId+"' não encontrado.")),
+                autor,
+                extensao,
+                inicioData,
+                fimData
+        );
 
-        return fotos.stream()
-                .map(foto -> modelMapper.map(foto, FotoDTO.class))
-                .collect(Collectors.toList());
+        return fotoRepository.findAll(spec, pageable);
     }
 
     public FotoDTO salvarFoto(FotoUploadDTO fotoDTO, MultipartFile file, User owner) {
@@ -60,7 +73,15 @@ public class FotoService {
         return modelMapper.map(fotoSalva, FotoDTO.class);
     }
 
-    public void deletarFoto(User owner) {
+    public void deletarFoto(User owner, Long fotoId) {
+        Foto foto = fotoRepository.findById(fotoId)
+                .orElseThrow(() -> new ItemNotFoundException("Foto com id '"+fotoId+"' não encontrada."));
 
+        if (!foto.getOwner().getId().equals(owner.getId())) {
+            throw new UnauthorizedUserException("Você não possui permissão para deletar essa foto.");
+        }
+
+        fileStorageService.deletarFoto(foto.getFilePath());
+        fotoRepository.deleteById(fotoId);
     }
 }

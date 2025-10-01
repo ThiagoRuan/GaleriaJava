@@ -62,4 +62,14 @@ public class FileStorageService {
             throw new FileStorageException("Falha ao salvar o arquivo.", e);
         }
     }
+
+    public void deletarFoto(String filePath) {
+
+        Path path = this.rootLocation.resolve(filePath);
+        try {
+            Files.delete(path);
+        } catch (IOException e) {
+            throw new FileStorageException("Não foi possível deletar o arquivo.");
+        }
+    }
 }
