@@ -30,8 +30,8 @@ public class AlbumController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AlbumDTO>> getMeusAlbuns(@AuthenticationPrincipal User usuarioLogado) {
-        return ResponseEntity.ok(albumService.findAlbumsByOwner(usuarioLogado));
+    public ResponseEntity<List<AlbumDTO>> listarAlbuns(@AuthenticationPrincipal User usuarioLogado) {
+        return ResponseEntity.ok(albumService.listarAlbuns(usuarioLogado));
     }
 
     @DeleteMapping("/{id}")

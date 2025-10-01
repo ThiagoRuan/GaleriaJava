@@ -28,7 +28,7 @@ public class AlbumService {
     private final FotoRepository fotoRepository;
     private final ModelMapper modelMapper;
 
-    public List<AlbumDTO> findAlbumsByOwner(User owner) {
+    public List<AlbumDTO> listarAlbuns(User owner) {
         List<Album> albuns = albumRepository.findByOwner(owner);
 
         return albuns.stream()
