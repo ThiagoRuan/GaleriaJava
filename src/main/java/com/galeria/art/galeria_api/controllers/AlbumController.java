@@ -1,8 +1,6 @@
 package com.galeria.art.galeria_api.controllers;
 
-import com.galeria.art.galeria_api.dto.AlbumDTO;
-import com.galeria.art.galeria_api.dto.UpdateAlbumDTO;
-import com.galeria.art.galeria_api.dto.CreateAlbumDTO;
+import com.galeria.art.galeria_api.dto.*;
 import com.galeria.art.galeria_api.models.User;
 import com.galeria.art.galeria_api.services.AlbumService;
 import jakarta.validation.Valid;
@@ -13,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/albuns")
@@ -23,7 +22,7 @@ public class AlbumController {
 
     @PostMapping
     public ResponseEntity<AlbumDTO> criarAlbum(
-            @Valid @RequestBody CreateAlbumDTO albumDTO,
+            @Valid @RequestBody AlbumCreateDTO albumDTO,
             @AuthenticationPrincipal User usuarioLogado
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(albumService.criarAlbum(albumDTO, usuarioLogado));
@@ -45,10 +44,39 @@ public class AlbumController {
 
     @PutMapping("/{id}")
     public ResponseEntity<AlbumDTO> atualizarAlbum(
-            @Valid @RequestBody UpdateAlbumDTO albumDTO,
+            @Valid @RequestBody AlbumUpdateDTO albumDTO,
             @PathVariable Long id,
             @AuthenticationPrincipal User usuarioLogado
     ) {
         return ResponseEntity.ok(albumService.atualizarAlbum(usuarioLogado, id, albumDTO));
+    }
+
+    @GetMapping("/{albumId}/fotos")
+    public ResponseEntity<Set<FotoDTO>> listarFotosAlbum(
+            @Valid @AuthenticationPrincipal User usuarioLogado,
+            @PathVariable Long albumId
+    ) {
+        return ResponseEntity.ok(albumService.fotos(usuarioLogado, albumId));
+    }
+
+    @PostMapping("/{albumId}/fotos")
+    public ResponseEntity<Void> adicionarFoto(
+            @Valid @RequestBody AlbumAddFotoDTO albumAddFotoDTO,
+            @PathVariable Long albumId,
+            @AuthenticationPrincipal User usuarioLogado
+    ) {
+        albumService.adicionarFoto(usuarioLogado, albumAddFotoDTO, albumId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{albumId}/fotos/{fotoId}")
+    public ResponseEntity<Void> deletarFotoAlbum(
+            @Valid @AuthenticationPrincipal User usuarioLogado,
+            @PathVariable Long albumId,
+            @PathVariable Long fotoId
+    ) {
+        albumService.deletarFotoAlbum(usuarioLogado, fotoId, albumId);
+        return ResponseEntity.noContent().build();
     }
 }

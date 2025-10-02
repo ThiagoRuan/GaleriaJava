@@ -1,9 +1,6 @@
 package com.galeria.art.galeria_api.services;
 
-import com.galeria.art.galeria_api.dto.AlbumDTO;
-import com.galeria.art.galeria_api.dto.UpdateAlbumDTO;
-import com.galeria.art.galeria_api.dto.CreateAlbumDTO;
-import com.galeria.art.galeria_api.dto.FotoDTO;
+import com.galeria.art.galeria_api.dto.*;
 import com.galeria.art.galeria_api.exceptions.AlbumAlreadyExistsException;
 import com.galeria.art.galeria_api.exceptions.ItemNotFoundException;
 import com.galeria.art.galeria_api.exceptions.UnauthorizedUserException;
@@ -36,7 +33,7 @@ public class AlbumService {
                 .collect(Collectors.toList());
     }
 
-    public AlbumDTO criarAlbum(CreateAlbumDTO createAlbumDTO, User owner) {
+    public AlbumDTO criarAlbum(AlbumCreateDTO createAlbumDTO, User owner) {
         albumRepository.findByTituloAndOwner(createAlbumDTO.getTitulo(), owner).ifPresent(album -> {
             throw new AlbumAlreadyExistsException("Já existe um álbum '"+createAlbumDTO.getTitulo()+"' na sua galeria.");
         });
@@ -45,8 +42,7 @@ public class AlbumService {
         album.setTitulo(createAlbumDTO.getTitulo());
         album.setOwner(owner);
 
-        Album albumSalvo = albumRepository.save(album);
-        return modelMapper.map(albumSalvo, AlbumDTO.class);
+        return modelMapper.map(albumRepository.save(album), AlbumDTO.class);
     }
 
     public void deletarAlbum(User owner, Long albumId) {
@@ -59,7 +55,7 @@ public class AlbumService {
         albumRepository.deleteById(albumId);
     }
 
-    public AlbumDTO atualizarAlbum(User owner, Long albumId, UpdateAlbumDTO albumDTO) {
+    public AlbumDTO atualizarAlbum(User owner, Long albumId, AlbumUpdateDTO albumDTO) {
         Album album = albumRepository.findById(albumId)
                 .orElseThrow(() -> new ItemNotFoundException("Álbum com id '"+albumId+"' não encontrado."));
 
@@ -86,18 +82,52 @@ public class AlbumService {
                 .orElseThrow(() -> new ItemNotFoundException("Album '"+albumId+"' não encontrado."))
                 .getCoverFoto();
 
-        return modelMapper.map(cover, FotoDTO.class);
+        return modelMapper.map(
+                albumRepository.findById(albumId).orElseThrow(() -> new ItemNotFoundException("Album '"+albumId+"' não encontrado.")).getCoverFoto(),
+                FotoDTO.class
+        );
     }
 
-    public Set<FotoDTO> fotos(Long albumId) {
+    public Set<FotoDTO> fotos(User owner, Long albumId) {
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new ItemNotFoundException("Album '"+albumId+"' não encontrado."));
 
-        Set<Foto> fotos = albumRepository.findById(albumId)
-                .orElseThrow(() -> new ItemNotFoundException("Album '"+albumId+"' não encontrado."))
-                .getFotos();
+        if (!album.getOwner().getId().equals(owner.getId())) {
+            throw new UnauthorizedUserException("Você não possui permissão para ver as fotos desse álbum");
+        }
 
+        Set<Foto> fotos = album.getFotos();
         return fotos.stream()
                 .map(foto -> modelMapper.map(foto, FotoDTO.class))
                 .collect(Collectors.toSet());
+    }
+
+    public void adicionarFoto(User owner, AlbumAddFotoDTO albumAddFotoDTO, Long albumId) {
+        Foto foto = fotoRepository.findById(albumAddFotoDTO.getFotoId())
+                .orElseThrow(() -> new ItemNotFoundException("Foto com id '"+albumAddFotoDTO.getFotoId()+"' não encontrada."));
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new ItemNotFoundException("Album '"+albumId+"' não encontrado."));
+
+        if (!album.getOwner().getId().equals(owner.getId()) || !foto.getOwner().getId().equals(owner.getId())) {
+            throw new UnauthorizedUserException("Você não possui permissão para adicionar a foto no álbum.");
+        }
+
+        foto.setAlbum(album);
+        fotoRepository.save(foto);
+    }
+
+    public void deletarFotoAlbum(User owner, Long fotoId, Long albumId) {
+        Foto foto = fotoRepository.findById(fotoId)
+                .orElseThrow(() -> new ItemNotFoundException("Foto com id '"+fotoId+"' não encontrada."));
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new ItemNotFoundException("Album '"+albumId+"' não encontrado."));
+
+        if (!album.getOwner().getId().equals(owner.getId()) || !foto.getOwner().getId().equals(owner.getId())) {
+            throw new UnauthorizedUserException("Você não possui permissão para deletar a foto do álbum.");
+        }
+
+        foto.setAlbum(null);
+        fotoRepository.save(foto);
     }
 
 }
