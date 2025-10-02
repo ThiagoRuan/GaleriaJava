@@ -1,6 +1,7 @@
 package com.galeria.art.galeria_api.services;
 
 import com.galeria.art.galeria_api.dto.FotoDTO;
+import com.galeria.art.galeria_api.dto.FotoUpdateDTO;
 import com.galeria.art.galeria_api.dto.FotoUploadDTO;
 import com.galeria.art.galeria_api.exceptions.FotoUploadException;
 import com.galeria.art.galeria_api.exceptions.ItemNotFoundException;
@@ -71,6 +72,23 @@ public class FotoService {
 
         Foto fotoSalva = fotoRepository.save(foto);
         return modelMapper.map(fotoSalva, FotoDTO.class);
+    }
+
+    public FotoDTO atualizarFoto(User owner, Long fotoId, FotoUpdateDTO fotoDTO) {
+        Foto foto = fotoRepository.findById(fotoId)
+                .orElseThrow(() -> new ItemNotFoundException("Foto com id '"+fotoId+"' não encontrada."));
+
+        if (!foto.getOwner().getId().equals(owner.getId())) {
+            throw new UnauthorizedUserException("Você não possui permissão para atualizar essa foto.");
+        }
+        if (!fotoDTO.getNome().isBlank()) {
+            foto.setNome(fotoDTO.getNome());
+        }
+        if (!fotoDTO.getAutor().isBlank()) {
+            foto.setAutor(fotoDTO.getAutor());
+        }
+
+        return modelMapper.map(fotoRepository.save(foto), FotoDTO.class);
     }
 
     public void deletarFoto(User owner, Long fotoId) {

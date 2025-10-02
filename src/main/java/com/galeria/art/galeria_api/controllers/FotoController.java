@@ -1,6 +1,7 @@
 package com.galeria.art.galeria_api.controllers;
 
 import com.galeria.art.galeria_api.dto.FotoDTO;
+import com.galeria.art.galeria_api.dto.FotoUpdateDTO;
 import com.galeria.art.galeria_api.dto.FotoUploadDTO;
 import com.galeria.art.galeria_api.models.Foto;
 import com.galeria.art.galeria_api.models.User;
@@ -47,6 +48,15 @@ public class FotoController {
     ) {
         Page<Foto> paginaDeFotos = fotoService.listarFotos(usuarioLogado, albumId, autor, extensao, inicioData, fimData, pageable);
         return ResponseEntity.ok(paginaDeFotos.map(foto -> modelMapper.map(foto, FotoDTO.class)));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<FotoDTO> atualizarFoto(
+            @Valid @RequestBody FotoUpdateDTO fotoDTO,
+            @PathVariable Long id,
+            @AuthenticationPrincipal User usuarioLogado
+    ) {
+        return ResponseEntity.ok(fotoService.atualizarFoto(usuarioLogado, id, fotoDTO));
     }
 
     @DeleteMapping("/{id}")
