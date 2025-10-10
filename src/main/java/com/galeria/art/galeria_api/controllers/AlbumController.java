@@ -53,7 +53,7 @@ public class AlbumController {
 
     @GetMapping("/{albumId}/fotos")
     public ResponseEntity<Set<FotoDTO>> listarFotosAlbum(
-            @Valid @AuthenticationPrincipal User usuarioLogado,
+            @AuthenticationPrincipal User usuarioLogado,
             @PathVariable Long albumId
     ) {
         return ResponseEntity.ok(albumService.fotos(usuarioLogado, albumId));
@@ -72,7 +72,7 @@ public class AlbumController {
 
     @DeleteMapping("/{albumId}/fotos/{fotoId}")
     public ResponseEntity<Void> deletarFotoAlbum(
-            @Valid @AuthenticationPrincipal User usuarioLogado,
+            @AuthenticationPrincipal User usuarioLogado,
             @PathVariable Long albumId,
             @PathVariable Long fotoId
     ) {
