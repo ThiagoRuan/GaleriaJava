@@ -13,4 +13,4 @@ __
 Em um terminal (utilizar powershel no windows), abra o diretório raiz da aplicação e execute em ordem:
 
 `docker-compose up -d`
-`./mvnw springboot:run`
+`./mvnw spring-boot:run`
