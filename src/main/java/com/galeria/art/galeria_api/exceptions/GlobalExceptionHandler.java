@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({FileStorageException.class, FotoUploadException.class})
     public ResponseEntity<ErrorResponseDTO> handleFileStorageException(
-            UnauthorizedUserException ex,
+            RuntimeException ex,
             HttpServletRequest request
     ) {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler({FotoAlreadyExistsException.class, EmailAlreadyExistsException.class, FotoAlreadyExistsException.class})
+    @ExceptionHandler({FotoAlreadyExistsException.class, AlbumAlreadyExistsException.class, EmailAlreadyExistsException.class})
     public ResponseEntity<ErrorResponseDTO> handleAlreadyExistsException(
             RuntimeException ex,
             HttpServletRequest request
